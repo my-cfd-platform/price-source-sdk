@@ -29,4 +29,10 @@ impl PriceSourceBridgeStats {
             .and_modify(|e| *e += change_millis)
             .or_insert(change_millis);
     }
+
+    pub fn clean(&mut self) {
+        self.incoming_messages_count = 0;
+        self.prices_count.clear();
+        self.prices_timeout_count_ms.clear();
+    }
 }
