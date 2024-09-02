@@ -9,6 +9,12 @@ pub struct PriceSourceStatsTimer {
     stats: Arc<Mutex<PriceSourceBridgeStats>>,
 }
 
+impl PriceSourceStatsTimer {
+    pub fn new(stats: Arc<Mutex<PriceSourceBridgeStats>>) -> Self {
+        Self { stats }
+    }
+}
+
 #[async_trait::async_trait]
 impl MyTimerTick for PriceSourceStatsTimer {
     async fn tick(&self) {
