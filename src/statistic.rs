@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use rust_extensions::date_time::DateTimeAsMicroseconds;
+use service_sdk::rust_extensions::date_time::DateTimeAsMicroseconds;
 
 #[derive(Debug, Default)]
 pub struct PriceSourceBridgeStats {
@@ -28,6 +28,23 @@ impl PriceSourceBridgeStats {
             .entry(id.to_string())
             .and_modify(|e| *e += change_millis)
             .or_insert(change_millis);
+    }
+
+    pub fn write_as_metrics(&mut self) {
+        service_sdk::metrics::gauge!("price_bridge_incoming_messages_count").increment(0);
+        self.incoming_messages_count = 0;
+
+        for (key, value) in &self.prices_count {
+            service_sdk::metrics::gauge!("price_bridge_prices_count", "instrument_id" => key.to_string())
+                .increment(*value as f64);
+        }
+        self.prices_count.clear();
+
+        for (key, value) in &self.prices_timeout_count_ms {
+            service_sdk::metrics::gauge!("price_bridge_prices_timeout_count_ms", "instrument_id" => key.to_string())
+                .increment(*value as f64);
+        }
+        self.prices_timeout_count_ms.clear();
     }
 
     pub fn clean(&mut self) {
