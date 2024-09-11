@@ -31,17 +31,17 @@ impl PriceSourceBridgeStats {
     }
 
     pub fn write_as_metrics(&mut self) {
-        service_sdk::metrics::gauge!("price_bridge_incoming_messages_count").increment(0);
+        service_sdk::metrics::counter!("price_bridge_incoming_messages_counter").increment(self.incoming_messages_count);
         self.incoming_messages_count = 0;
 
         for (key, value) in &self.prices_count {
-            service_sdk::metrics::gauge!("price_bridge_prices_count", "instrument_id" => key.to_string())
+            service_sdk::metrics::gauge!("price_bridge_prices_gauge", "instrument_id" => key.to_string())
                 .increment(*value as f64);
         }
         self.prices_count.clear();
 
         for (key, value) in &self.prices_timeout_count_ms {
-            service_sdk::metrics::gauge!("price_bridge_prices_timeout_count_ms", "instrument_id" => key.to_string())
+            service_sdk::metrics::histogram!("price_bridge_prices_timeout_count_ms_histogram", "instrument_id" => key.to_string())
                 .increment(*value as f64);
         }
         self.prices_timeout_count_ms.clear();
