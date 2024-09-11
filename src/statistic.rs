@@ -31,7 +31,8 @@ impl PriceSourceBridgeStats {
     }
 
     pub fn write_as_metrics(&mut self) {
-        service_sdk::metrics::counter!("price_bridge_incoming_messages_counter").increment(self.incoming_messages_count);
+        service_sdk::metrics::counter!("price_bridge_incoming_messages_counter")
+            .increment(self.incoming_messages_count as u64);
         self.incoming_messages_count = 0;
 
         for (key, value) in &self.prices_count {
@@ -42,7 +43,7 @@ impl PriceSourceBridgeStats {
 
         for (key, value) in &self.prices_timeout_count_ms {
             service_sdk::metrics::histogram!("price_bridge_prices_timeout_count_ms_histogram", "instrument_id" => key.to_string())
-                .increment(*value as f64);
+                .record(*value as f64);
         }
         self.prices_timeout_count_ms.clear();
     }
